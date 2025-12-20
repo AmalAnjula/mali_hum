@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+{% block title %}Products{% endblock %}
+{% block content %}
+<div class="row mb-4">
+    <div class="col">
+        <h1><i class="bi bi-box-seam"></i> Product Specifications</h1>
+    </div>
+    <div class="col-auto">
+        {% if session.role == 'ADMIN' %}
+        <a href="{{ url_for('create_product') }}" class="btn btn-success me-2">
+            <i class="bi bi-plus-circle"></i> Create Product
+        </a>
+        {% endif %}
+        <a href="{{ url_for('export_csv', plant=request.args.get('plant', ''), product=request.args.get('product', ''), username=request.args.get('username', '')) }}" class="btn btn-primary">
+            <i class="bi bi-download"></i> Export CSV
+        </a>
+    </div>
+</div>
+
+<div class="card mb-4">
+    <div class="card-body">
+        <h5 class="card-title"><i class="bi bi-funnel"></i> Filters</h5>
+        <form method="GET" class="row g-3">
+            <div class="col-md-3">
+                <input type="text" name="plant" class="form-control" placeholder="Plant" value="{{ request.args.get('plant', '') }}">
+            </div>
+            <div class="col-md-3">
+                <input type="text" name="product" class="form-control" placeholder="Product" value="{{ request.args.get('product', '') }}">
+            </div>
+            <div class="col-md-3">
+                <input type="text" name="username" class="form-control" placeholder="Username" value="{{ request.args.get('username', '') }}">
+            </div>
+            <div class="col-md-3">
+                <button type="submit" class="btn btn-primary w-100">
+                    <i class="bi bi-search"></i> Filter
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-dark table-hover">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Date/Time</th>
+                        <th>Plant</th>
+                        <th>Product</th>
+                        <th>Moisture</th>
+                        <th>Weight</th>
+                        <th>Thickness</th>
+                        <th>Breadth</th>
+                        <th>Length</th>
+                        <th>Diameter</th>
+                        <th>User</th>
+                        {% if session.role == 'ADMIN' %}
+                        <th>Actions</th>
+                        {% endif %}
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for p in products %}
+                    <tr>
+                        <td>{{ p.id }}</td>
+                        <td>{{ p.create_date.strftime('%Y-%m-%d %H:%M:%S') }}</td>
+                        <td>{{ p.plant }}</td>
+                        <td>{{ p.product }}</td>
+                        <td><small>{{ p.moisture_min }} - {{ p.moisture_max }}</small></td>
+                        <td><small>{{ p.weight_min }} - {{ p.weight_max }}</small></td>
+                        <td><small>{{ p.thickness_min }} - {{ p.thickness_max }}</small></td>
+                        <td><small>{{ p.breadth_min }} - {{ p.breadth_max }}</small></td>
+                        <td><small>{{ p.length_min }} - {{ p.length_max }}</small></td>
+                        <td><small>{{ p.diameter_min }} - {{ p.diameter_max }}</small></td>
+                        <td>{{ p.username }}</td>
+                        {% if session.role == 'ADMIN' %}
+                        <td>
+                            <a href="{{ url_for('edit_product', product_id=p.id) }}" class="btn btn-sm btn-primary">
+                                <i class="bi bi-pencil"></i>
+                            </a>
+                            <a href="{{ url_for('delete_product', product_id=p.id) }}" 
+                               class="btn btn-sm btn-danger" 
+                               onclick="return confirm('Delete this product?')">
+                                <i class="bi bi-trash"></i>
+                            </a>
+                        </td>
+                        {% endif %}
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

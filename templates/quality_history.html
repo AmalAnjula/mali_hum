@@ -1,0 +1,116 @@
+{% extends "base.html" %}
+{% block title %}Quality Check History{% endblock %}
+{% block content %}
+<div class="row mb-4">
+    <div class="col">
+        <h1><i class="bi bi-clock-history"></i> Quality Check History</h1>
+    </div>
+    <div class="col-auto">
+        <a href="{{ url_for('quality_check') }}" class="btn btn-success me-2">
+            <i class="bi bi-plus-circle"></i> New Check
+        </a>
+        <a href="{{ url_for('export_quality_csv', product=request.args.get('product', ''), status=request.args.get('status', ''), username=request.args.get('username', '')) }}" class="btn btn-primary">
+            <i class="bi bi-download"></i> Export CSV
+        </a>
+    </div>
+</div>
+
+<div class="card mb-4">
+    <div class="card-body">
+        <h5 class="card-title"><i class="bi bi-funnel"></i> Filters</h5>
+        <form method="GET" class="row g-3">
+            <div class="col-md-3">
+                <input type="text" name="product" class="form-control" placeholder="Product" value="{{ request.args.get('product', '') }}">
+            </div>
+            <div class="col-md-3">
+                <select name="status" class="form-select">
+                    <option value="">All Status</option>
+                    <option value="PASS" {% if request.args.get('status') == 'PASS' %}selected{% endif %}>PASS</option>
+                    <option value="FAIL" {% if request.args.get('status') == 'FAIL' %}selected{% endif %}>FAIL</option>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <input type="text" name="username" class="form-control" placeholder="Username" value="{{ request.args.get('username', '') }}">
+            </div>
+            <div class="col-md-3">
+                <button type="submit" class="btn btn-primary w-100">
+                    <i class="bi bi-search"></i> Filter
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-dark table-hover">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Check Date/Time</th>
+                        <th>Plant</th>
+                        <th>Product</th>
+                        <th>Moisture</th>
+                        <th>Weight</th>
+                        <th>Thickness</th>
+                        <th>Breadth</th>
+                        <th>Length</th>
+                        <th>Diameter</th>
+                        <th>Status</th>
+                        <th>Inspector</th>
+                        <th>Notes</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for check in checks %}
+                    <tr>
+                        <td>{{ check.id }}</td>
+                        <td>{{ check.check_date.strftime('%Y-%m-%d %H:%M:%S') }}</td>
+                        <td>{{ check.product.plant }}</td>
+                        <td>{{ check.product.product }}</td>
+                        <td>
+                            <span class="{% if check.product.moisture_min <= check.moisture <= check.product.moisture_max %}text-success{% else %}text-danger{% endif %}">
+                                {{ check.moisture }}
+                            </span>
+                        </td>
+                        <td>
+                            <span class="{% if check.product.weight_min <= check.weight <= check.product.weight_max %}text-success{% else %}text-danger{% endif %}">
+                                {{ check.weight }}
+                            </span>
+                        </td>
+                        <td>
+                            <span class="{% if check.product.thickness_min <= check.thickness <= check.product.thickness_max %}text-success{% else %}text-danger{% endif %}">
+                                {{ check.thickness }}
+                            </span>
+                        </td>
+                        <td>
+                            <span class="{% if check.product.breadth_min <= check.breadth <= check.product.breadth_max %}text-success{% else %}text-danger{% endif %}">
+                                {{ check.breadth }}
+                            </span>
+                        </td>
+                        <td>
+                            <span class="{% if check.product.length_min <= check.length <= check.product.length_max %}text-success{% else %}text-danger{% endif %}">
+                                {{ check.length }}
+                            </span>
+                        </td>
+                        <td>
+                            <span class="{% if check.product.diameter_min <= check.diameter <= check.product.diameter_max %}text-success{% else %}text-danger{% endif %}">
+                                {{ check.diameter }}
+                            </span>
+                        </td>
+                        <td>
+                            <span class="badge bg-{% if check.status == 'PASS' %}success{% else %}danger{% endif %}">
+                                {{ check.status }}
+                            </span>
+                        </td>
+                        <td>{{ check.username }}</td>
+                        <td><small>{{ check.notes }}</small></td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

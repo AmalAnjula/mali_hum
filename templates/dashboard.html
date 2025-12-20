@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+{% block title %}Dashboard{% endblock %}
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <h1 class="mb-4"><i class="bi bi-speedometer2"></i> Dashboard</h1>
+    </div>
+</div>
+
+<div class="row g-4">
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-body text-center p-5">
+                <i class="bi bi-clipboard-check display-1 text-success mb-3"></i>
+                <h3>Quality Check</h3>
+                <p class="text-muted">Perform quality measurements</p>
+                <a href="{{ url_for('quality_check') }}" class="btn btn-success">
+                    <i class="bi bi-clipboard-check"></i> Start Check
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-body text-center p-5">
+                <i class="bi bi-clock-history display-1 text-info mb-3"></i>
+                <h3>Check History</h3>
+                <p class="text-muted">View quality check records</p>
+                <a href="{{ url_for('quality_history') }}" class="btn btn-info">
+                    <i class="bi bi-clock-history"></i> View History
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-body text-center p-5">
+                <i class="bi bi-box-seam display-1 text-primary mb-3"></i>
+                <h3>Products</h3>
+                <p class="text-muted">View product specifications</p>
+                <a href="{{ url_for('products') }}" class="btn btn-primary">
+                    <i class="bi bi-eye"></i> View Products
+                </a>
+            </div>
+        </div>
+    </div>
+
+    {% if session.role == 'ADMIN' %}
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-body text-center p-5">
+                <i class="bi bi-people display-1 text-warning mb-3"></i>
+                <h3>User Management</h3>
+                <p class="text-muted">Create and manage system users</p>
+                <a href="{{ url_for('users') }}" class="btn btn-warning">
+                    <i class="bi bi-people"></i> Manage Users
+                </a>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
