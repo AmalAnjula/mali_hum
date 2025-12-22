@@ -18,7 +18,13 @@
                         
                         <div class="col-md-6">
                             <label class="form-label">Plant</label>
-                            <input type="text" name="plant" class="form-control" value="{{ product.plant }}" required>
+                            <select name="plant" class="form-select" required>
+                                <option value="">-- Select Plant --</option>
+                                <option value="Plant 1" {% if product.plant == 'Plant 1' %}selected{% endif %}>Plant 1</option>
+                                <option value="Plant 2" {% if product.plant == 'Plant 2' %}selected{% endif %}>Plant 2</option>
+                                <option value="Plant 3" {% if product.plant == 'Plant 3' %}selected{% endif %}>Plant 3</option>
+                                <option value="Plant 4" {% if product.plant == 'Plant 4' %}selected{% endif %}>Plant 4</option>
+                            </select>
                         </div>
                         <div class="col-md-6">
                             <label class="form-label">Product</label>

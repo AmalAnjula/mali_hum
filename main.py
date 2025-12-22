@@ -6,6 +6,7 @@ from functools import wraps
 import csv
 import io
 import os
+import json
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'your-secret-key-change-this'
@@ -20,11 +21,11 @@ class User(db.Model):
     username = db.Column(db.String(80), unique=True, nullable=False)
     password = db.Column(db.String(200), nullable=False)
     role = db.Column(db.String(20), nullable=False)  # 'ADMIN' or 'USER'
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    created_at = db.Column(db.DateTime, default=datetime.now)
 
 class Product(db.Model):
     id = db.Column(db.String(50), primary_key=True)  # User-defined ID
-    create_date = db.Column(db.DateTime, default=datetime.utcnow)
+    create_date = db.Column(db.DateTime, default=datetime.now)
     plant = db.Column(db.String(100), nullable=False)
     product = db.Column(db.String(100), nullable=False)
     moisture_min = db.Column(db.Float, nullable=False)
@@ -45,7 +46,7 @@ class Product(db.Model):
 class QualityCheck(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     product_id = db.Column(db.String(50), db.ForeignKey('product.id'), nullable=False)
-    check_date = db.Column(db.DateTime, default=datetime.utcnow)
+    check_date = db.Column(db.DateTime, default=datetime.now)
     moisture = db.Column(db.Float, nullable=False)
     weight = db.Column(db.Float, nullable=False)
     thickness = db.Column(db.Float, nullable=False)
@@ -70,6 +71,68 @@ def init_db():
             db.session.add(admin)
             db.session.commit()
             print("Default admin created - username: admin, password: admin123")
+        
+        # Create json_data folder if it doesn't exist
+        if not os.path.exists('json_data'):
+            os.makedirs('json_data')
+            print("Created json_data folder for quality check JSON files")
+
+def save_quality_check_json(quality_check, product):
+    """Save quality check data to JSON file for the plant"""
+    try:
+        # Create filename based on plant name
+        plant_name = product.plant.replace(' ', '_').lower()
+        filename = f'json_data/{plant_name}_quality_checks.json'
+        
+        # Prepare the data
+        check_data = {
+            'check_id': quality_check.id,
+            'check_date': quality_check.check_date.strftime('%Y-%m-%d %H:%M:%S'),
+            'inspector': quality_check.username,
+            'product': {
+                'id': product.id,
+                'plant': product.plant,
+                'product_name': product.product
+            },
+            'specifications': {
+                'moisture': {'min': product.moisture_min, 'max': product.moisture_max},
+                'weight': {'min': product.weight_min, 'max': product.weight_max},
+                'thickness': {'min': product.thickness_min, 'max': product.thickness_max},
+                'breadth': {'min': product.breadth_min, 'max': product.breadth_max},
+                'length': {'min': product.length_min, 'max': product.length_max},
+                'diameter': {'min': product.diameter_min, 'max': product.diameter_max}
+            },
+            'measurements': {
+                'moisture': quality_check.moisture,
+                'weight': quality_check.weight,
+                'thickness': quality_check.thickness,
+                'breadth': quality_check.breadth,
+                'length': quality_check.length,
+                'diameter': quality_check.diameter
+            },
+            'status': quality_check.status,
+            'notes': quality_check.notes
+        }
+        
+        # Read existing data or create new list
+        if os.path.exists(filename):
+            with open(filename, 'r') as f:
+                data = json.load(f)
+        else:
+            data = []
+        
+        # Append new check
+        data.append(check_data)
+        
+        # Write back to file
+        with open(filename, 'w') as f:
+            json.dump(data, f, indent=4)
+        
+        print(f"Quality check saved to {filename}")
+        return True
+    except Exception as e:
+        print(f"Error saving JSON: {str(e)}")
+        return False
 
 # Decorators
 def login_required(f):
@@ -417,6 +480,9 @@ def quality_check():
             db.session.add(measurement)
             db.session.commit()
             
+            # Save to JSON file
+            save_quality_check_json(measurement, product)
+            
             if issues:
                 flash(f'Quality Check FAILED - Out of spec: {", ".join(issues)}', 'danger')
             else:
@@ -509,6 +575,116 @@ def export_quality_csv():
         as_attachment=True,
         download_name=f'quality_checks_{datetime.now().strftime("%Y%m%d_%H%M%S")}.csv'
     )
+
+@app.route('/display-dashboard2')
+def display_dashboard2():
+    return render_template('display_dashboard2.html')
+
+@app.route('/display-dashboard')
+def display_dashboard():
+    plants = ['Plant 1', 'Plant 2', 'Plant 3', 'Plant 4']
+    return render_template('display_dashboard.html', plants=plants)
+
+@app.route('/get-latest-check/<plant>')
+def get_latest_check(plant):
+    # Convert plant name to filename format
+    plant_name = plant.replace(' ', '_').lower()
+    filename = f'json_data/{plant_name}_quality_checks.json'
+    
+    # Check if file exists
+    if not os.path.exists(filename):
+        return {'error': f'No data available for {plant}'}, 404
+    
+    try:
+        # Read JSON file
+        with open(filename, 'r') as f:
+            data = json.load(f)
+        
+        # Get the latest check (last item in array)
+        if not data or len(data) == 0:
+            return {'error': f'No quality checks found for {plant}'}, 404
+        
+        latest_check = data[-1]  # Last item is the latest
+        
+        return {
+            'check_date': latest_check['check_date'],
+            'product_name': latest_check['product']['product_name'],
+            'plant': latest_check['product']['plant'],
+            'status': latest_check['status'],
+            'data': {
+                'moisture': {
+                    'value': latest_check['measurements']['moisture'],
+                    'min': latest_check['specifications']['moisture']['min'],
+                    'max': latest_check['specifications']['moisture']['max']
+                },
+                'weight': {
+                    'value': latest_check['measurements']['weight'],
+                    'min': latest_check['specifications']['weight']['min'],
+                    'max': latest_check['specifications']['weight']['max']
+                },
+                'thickness': {
+                    'value': latest_check['measurements']['thickness'],
+                    'min': latest_check['specifications']['thickness']['min'],
+                    'max': latest_check['specifications']['thickness']['max']
+                },
+                'breadth': {
+                    'value': latest_check['measurements']['breadth'],
+                    'min': latest_check['specifications']['breadth']['min'],
+                    'max': latest_check['specifications']['breadth']['max']
+                },
+                'length': {
+                    'value': latest_check['measurements']['length'],
+                    'min': latest_check['specifications']['length']['min'],
+                    'max': latest_check['specifications']['length']['max']
+                },
+                'diameter': {
+                    'value': latest_check['measurements']['diameter'],
+                    'min': latest_check['specifications']['diameter']['min'],
+                    'max': latest_check['specifications']['diameter']['max']
+                }
+            }
+        }
+    except json.JSONDecodeError:
+        return {'error': f'Invalid JSON file for {plant}'}, 500
+    except Exception as e:
+        return {'error': f'Error reading data: {str(e)}'}, 500
+
+@app.route('/get-moisture-history/<plant>')
+def get_moisture_history(plant):
+    # Convert plant name to filename format
+    plant_name = plant.replace(' ', '_').lower()
+    filename = f'json_data/{plant_name}_quality_checks.json'
+    
+    # Check if file exists
+    if not os.path.exists(filename):
+        return {'error': f'No data available for {plant}'}, 404
+    
+    try:
+        # Read JSON file
+        with open(filename, 'r') as f:
+            data = json.load(f)
+        
+        if not data or len(data) == 0:
+            return {'error': f'No quality checks found for {plant}'}, 404
+        
+        # Get last 5 moisture readings
+        last_5 = data[-5:] if len(data) >= 5 else data
+        
+        moisture_history = []
+        for check in last_5:
+            moisture_history.append({
+                'check_date': check['check_date'],
+                'moisture': check['measurements']['moisture'],
+                'min': check['specifications']['moisture']['min'],
+                'max': check['specifications']['moisture']['max'],
+                'status': 'In Spec' if check['specifications']['moisture']['min'] <= check['measurements']['moisture'] <= check['specifications']['moisture']['max'] else 'Out of Spec'
+            })
+        
+        return {'history': moisture_history}
+    except json.JSONDecodeError:
+        return {'error': f'Invalid JSON file for {plant}'}, 500
+    except Exception as e:
+        return {'error': f'Error reading data: {str(e)}'}, 500
 
 if __name__ == '__main__':
     init_db()

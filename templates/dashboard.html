@@ -37,6 +37,19 @@
     <div class="col-md-4">
         <div class="card">
             <div class="card-body text-center p-5">
+                <i class="bi bi-tv display-1 text-warning mb-3"></i>
+                <h3>Display Dashboard</h3>
+                <p class="text-muted">Full-screen monitoring display</p>
+                <a href="{{ url_for('display_dashboard') }}" class="btn btn-warning" target="_blank">
+                    <i class="bi bi-tv"></i> Open Display
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-body text-center p-5">
                 <i class="bi bi-box-seam display-1 text-primary mb-3"></i>
                 <h3>Products</h3>
                 <p class="text-muted">View product specifications</p>
@@ -51,10 +64,10 @@
     <div class="col-md-4">
         <div class="card">
             <div class="card-body text-center p-5">
-                <i class="bi bi-people display-1 text-warning mb-3"></i>
+                <i class="bi bi-people display-1 text-danger mb-3"></i>
                 <h3>User Management</h3>
                 <p class="text-muted">Create and manage system users</p>
-                <a href="{{ url_for('users') }}" class="btn btn-warning">
+                <a href="{{ url_for('users') }}" class="btn btn-danger">
                     <i class="bi bi-people"></i> Manage Users
                 </a>
             </div>

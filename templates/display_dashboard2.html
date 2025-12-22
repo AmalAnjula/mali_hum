@@ -1,0 +1,687 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quality Display Dashboard - Plant 2 & 3</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: linear-gradient(135deg, #1a1a2e 0%, #0f3460 100%);
+            overflow: hidden;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Top Header - 10% */
+        .top-header {
+            height: 10vh;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 2rem;
+            background: rgba(22, 27, 34, 0.95);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+        }
+
+        .plant-info {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .plant-name {
+            font-size: 2.5vw;
+            font-weight: bold;
+            color: #4facfe;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+
+        .last-update {
+            font-size: 1.2vw;
+            color: #a0a0a0;
+            margin-top: 0.3rem;
+        }
+
+        .last-update-time {
+            color: #4facfe;
+            font-weight: 600;
+        }
+
+        .logo-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .logo-container img {
+            max-height: 8vh;
+            max-width: 15vw;
+            object-fit: contain;
+        }
+
+        .datetime-display {
+            font-size: 1.5vw;
+            color: #e0e0e0;
+            text-align: right;
+        }
+
+        .datetime-display .date {
+            font-size: 1.3vw;
+            font-weight: 600;
+        }
+
+        .datetime-display .time {
+            font-size: 1.8vw;
+            font-weight: bold;
+            color: #4facfe;
+        }
+
+        /* Product Name Section */
+        .product-section {
+            padding: 1.5vh 2rem;
+            text-align: center;
+            background: rgba(22, 27, 34, 0.7);
+        }
+
+        .product-name {
+            font-size: 3vw;
+            font-weight: bold;
+            color: #ffffff;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 0.5rem 1.5rem;
+            border-radius: 20px;
+            font-size: 1.5vw;
+            font-weight: bold;
+            margin-left: 2rem;
+        }
+
+        .status-pass {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: #fff;
+        }
+
+        .status-fail {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: #fff;
+        }
+
+        /* Grid Container */
+        .grid-container {
+            flex: 1;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            grid-template-rows: repeat(2, 1fr);
+            gap: 1.5rem;
+            padding: 1.5rem;
+            position: relative;
+        }
+
+        /* Views Container */
+        .view-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            padding: 1.5rem;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            grid-template-rows: repeat(2, 1fr);
+            gap: 1.5rem;
+            opacity: 0;
+            transform: translateX(100%);
+            transition: all 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        }
+
+        .view-container.active {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        .view-container.exit {
+            opacity: 0;
+            transform: translateX(-100%);
+        }
+
+        /* Tile Styling */
+        .tile {
+            background: rgba(22, 27, 34, 0.9);
+            border: 2px solid rgba(102, 126, 234, 0.3);
+            border-radius: 15px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+            transition: all 0.3s ease;
+        }
+
+        .tile:hover {
+            transform: translateY(-5px);
+            border-color: rgba(102, 126, 234, 0.6);
+            box-shadow: 0 12px 40px rgba(102, 126, 234, 0.3);
+        }
+
+        .tile-title {
+            font-size: 2vw;
+            font-weight: 600;
+            color: #667eea;
+            text-transform: uppercase;
+            margin-bottom: 1rem;
+        }
+
+        .tile-value {
+            font-size: 4.5vw;
+            font-weight: bold;
+            color: #ffffff;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+            margin: 1rem 0;
+        }
+
+        .tile-range {
+            font-size: 1.3vw;
+            color: #a0a0a0;
+            margin-top: auto;
+        }
+
+        .tile-range span {
+            color: #4facfe;
+            font-weight: 600;
+        }
+
+        /* History Tile */
+        .history-tile {
+            background: rgba(22, 27, 34, 0.9);
+            border: 2px solid rgba(102, 126, 234, 0.3);
+            border-radius: 15px;
+            padding: 1.5rem;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            min-height: 0;
+        }
+
+        .history-title {
+            font-size: 1.5vw;
+            font-weight: 600;
+            color: #667eea;
+            text-align: center;
+            margin-bottom: 0.8rem;
+        }
+
+        .history-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.8rem;
+            margin: 0.5rem 0;
+            background: rgba(30, 35, 45, 0.6);
+            border-radius: 8px;
+            border-left: 4px solid #4facfe;
+        }
+
+        .history-time {
+            font-size: 1vw;
+            color: #a0a0a0;
+        }
+
+        .history-value {
+            font-size: 4vw;
+            font-weight: bold;
+            color: #ffffff;
+        }
+
+        .history-status {
+            font-size: 0.9vw;
+            padding: 0.3rem 0.8rem;
+            border-radius: 12px;
+            font-weight: 600;
+        }
+
+        .status-in-spec {
+            background: rgba(79, 172, 254, 0.2);
+            color: #4facfe;
+        }
+
+        .status-out-spec {
+            background: rgba(245, 87, 108, 0.2);
+            color: #f5576c;
+        }
+
+        .history-range {
+            text-align: center;
+            margin-top: 0.5rem;
+            font-size: 1.1vw;
+            color: #a0a0a0;
+        }
+
+        .history-range span {
+            color: #4facfe;
+            font-weight: 600;
+        }
+
+        .history-datetime {
+            text-align: center;
+            margin-top: 0.8rem;
+            padding-top: 0.8rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            font-size: 0.95vw;
+            color: #a0a0a0;
+        }
+
+        .history-datetime .date-label {
+            color: #667eea;
+            font-weight: 600;
+            display: block;
+            margin-bottom: 0.2rem;
+        }
+
+        .history-datetime .date-value {
+            color: #4facfe;
+        }
+
+        /* Chart Tile */
+        .chart-tile {
+            background: rgba(22, 27, 34, 0.9);
+            border: 2px solid rgba(102, 126, 234, 0.3);
+            border-radius: 15px;
+            padding: 1rem;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+            display: flex;
+            flex-direction: column;
+            min-height: 0;
+            overflow: hidden;
+        }
+
+        .chart-title {
+            font-size: 1.5vw;
+            font-weight: 600;
+            color: #667eea;
+            text-align: center;
+            margin-bottom: 0.5rem;
+            flex-shrink: 0;
+        }
+
+        .chart-container {
+            flex: 1;
+            position: relative;
+            min-height: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #moistureChart {
+            max-width: 100%;
+            max-height: 100%;
+        }
+
+        /* Out of spec indicator */
+        .out-of-spec {
+            border-color: rgba(245, 87, 108, 0.6) !important;
+            background: rgba(245, 87, 108, 0.1);
+        }
+
+        .out-of-spec .tile-value {
+            color: #f5576c;
+            animation: pulse 1.5s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
+        .loading {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            font-size: 2vw;
+            color: #667eea;
+        }
+    </style>
+</head>
+<body>
+    <!-- Top Header -->
+    <div class="top-header">
+        <div class="plant-info">
+            <div class="plant-name" id="plantName">PLANT 2</div>
+            <div class="last-update">Last Update: <span class="last-update-time" id="lastUpdateTime">Loading...</span></div>
+        </div>
+        <div class="logo-container">
+            <img src="{{ url_for('static', filename='logo.png') }}" alt="Logo" onerror="this.style.display='none'">
+        </div>
+        <div class="datetime-display">
+            <div class="date" id="currentDate"></div>
+            <div class="time" id="currentTime"></div>
+        </div>
+    </div>
+
+    <!-- Product Name Section -->
+    <div class="product-section">
+        <span class="product-name" id="productName">Loading...</span>
+        <span class="status-badge" id="statusBadge"></span>
+    </div>
+
+    <!-- Grid Container -->
+    <div class="grid-container">
+        <!-- View 1: Plant 2 All Parameters -->
+        <div class="view-container active" id="view1"></div>
+        
+        <!-- View 2: Plant 2 Moisture History -->
+        <div class="view-container" id="view2"></div>
+        
+        <!-- View 3: Plant 3 All Parameters -->
+        <div class="view-container" id="view3"></div>
+        
+        <!-- View 4: Plant 3 Moisture History -->
+        <div class="view-container" id="view4"></div>
+    </div>
+
+    <script>
+        const plants = ['Plant 2', 'Plant 3'];
+        let currentView = 1;
+        let plant2Data = null;
+        let plant3Data = null;
+        let plant2MoistureHistory = null;
+        let plant3MoistureHistory = null;
+        let chart = null;
+
+        // Update date and time
+        function updateDateTime() {
+            const now = new Date();
+            const dateOptions = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            const timeOptions = { hour: '2-digit', minute: '2-digit', second: '2-digit' };
+            
+            document.getElementById('currentDate').textContent = now.toLocaleDateString('en-US', dateOptions);
+            document.getElementById('currentTime').textContent = now.toLocaleTimeString('en-US', timeOptions);
+        }
+
+        // Load quality check data for a plant
+        function loadPlantData(plant) {
+            return fetch(`/get-latest-check/${plant}`)
+                .then(response => response.json())
+                .catch(error => {
+                    console.error(`Error loading ${plant} data:`, error);
+                    return { error: true };
+                });
+        }
+
+        // Load moisture history for a plant
+        function loadPlantMoistureHistory(plant) {
+            return fetch(`/get-moisture-history/${plant}`)
+                .then(response => response.json())
+                .catch(error => {
+                    console.error(`Error loading ${plant} moisture history:`, error);
+                    return { error: true };
+                });
+        }
+
+        // Load all data
+        async function loadAllData() {
+            plant2Data = await loadPlantData('Plant 2');
+            plant3Data = await loadPlantData('Plant 3');
+            plant2MoistureHistory = await loadPlantMoistureHistory('Plant 2');
+            plant3MoistureHistory = await loadPlantMoistureHistory('Plant 3');
+            
+            renderAllViews();
+        }
+
+        // Render all views
+        function renderAllViews() {
+            if (plant2Data && !plant2Data.error) {
+                renderAllParameters('view1', plant2Data);
+            }
+            if (plant2MoistureHistory && !plant2MoistureHistory.error) {
+                renderMoistureHistory('view2', plant2MoistureHistory.history);
+            }
+            if (plant3Data && !plant3Data.error) {
+                renderAllParameters('view3', plant3Data);
+            }
+            if (plant3MoistureHistory && !plant3MoistureHistory.error) {
+                renderMoistureHistory('view4', plant3MoistureHistory.history);
+            }
+        }
+
+        // Render all parameters view
+        function renderAllParameters(viewId, data) {
+            const parameters = [
+                { key: 'moisture', title: 'Moisture' },
+                { key: 'weight', title: 'Weight' },
+                { key: 'thickness', title: 'Thickness' },
+                { key: 'breadth', title: 'Breadth' },
+                { key: 'length', title: 'Length' },
+                { key: 'diameter', title: 'Diameter' }
+            ];
+
+            let html = '';
+            parameters.forEach(param => {
+                const paramData = data.data[param.key];
+                const isOutOfSpec = paramData.value < paramData.min || paramData.value > paramData.max;
+                
+                html += `
+                    <div class="tile ${isOutOfSpec ? 'out-of-spec' : ''}">
+                        <div class="tile-title">${param.title}</div>
+                        <div class="tile-value">${paramData.value.toFixed(2)}</div>
+                        <div class="tile-range">
+                            Min: <span>${paramData.min.toFixed(2)}</span> | 
+                            Max: <span>${paramData.max.toFixed(2)}</span>
+                        </div>
+                    </div>
+                `;
+            });
+
+            document.getElementById(viewId).innerHTML = html;
+        }
+
+        // Render moisture history view
+        function renderMoistureHistory(viewId, history) {
+            if (!history || history.length === 0) return;
+
+            let html = '';
+            
+            // First 5 tiles: Moisture history
+            history.reverse().forEach((item, index) => {
+                const statusClass = item.status === 'In Spec' ? 'status-in-spec' : 'status-out-spec';
+                const dateTime = item.check_date.split(' ');
+                const date = dateTime[0];
+                const time = dateTime[1];
+                
+                html += `
+                    <div class="history-tile">
+                        <div class="history-title">Reading ${index + 1}</div>
+                        <div class="history-item">
+                            <div class="history-time">${time}</div>
+                            <div class="history-value">${item.moisture.toFixed(2)}</div>
+                            <div class="history-status ${statusClass}">${item.status}</div>
+                        </div>
+                        <div class="history-range">
+                            Range: <span>${item.min.toFixed(2)} - ${item.max.toFixed(2)}</span>
+                        </div>
+                          
+                    </div>
+                `;
+            });
+
+            // 6th tile: Chart
+            html += `
+                <div class="chart-tile">
+                    <div class="chart-title">Moisture Trend</div>
+                    <div class="chart-container">
+                        <canvas id="moistureChart${viewId}"></canvas>
+                    </div>
+                </div>
+            `;
+
+            document.getElementById(viewId).innerHTML = html;
+
+            // Create chart after a short delay
+            setTimeout(() => createChart(`moistureChart${viewId}`, history), 100);
+        }
+
+        // Create moisture chart
+        function createChart(canvasId, history) {
+            const ctx = document.getElementById(canvasId);
+            if (!ctx) return;
+
+            const labels = history.map((item, index) => `#${index + 1}`);
+            const values = history.map(item => item.moisture);
+            const minLine = history.map(item => item.min);
+            const maxLine = history.map(item => item.max);
+
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: 'Moisture',
+                            data: values,
+                            borderColor: '#4facfe',
+                            backgroundColor: 'rgba(79, 172, 254, 0.1)',
+                            borderWidth: 3,
+                            fill: true,
+                            tension: 0.4,
+                            pointRadius: 6,
+                            pointHoverRadius: 8
+                        },
+                        {
+                            label: 'Min',
+                            data: minLine,
+                            borderColor: '#00f2fe',
+                            borderWidth: 2,
+                            borderDash: [5, 5],
+                            pointRadius: 0,
+                            fill: false
+                        },
+                        {
+                            label: 'Max',
+                            data: maxLine,
+                            borderColor: '#f5576c',
+                            borderWidth: 2,
+                            borderDash: [5, 5],
+                            pointRadius: 0,
+                            fill: false
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    aspectRatio: 2,
+                    layout: {
+                        padding: {
+                            top: 10,
+                            bottom: 10,
+                            left: 10,
+                            right: 10
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: true,
+                            position: 'top',
+                            labels: {
+                                color: '#e0e0e0',
+                                font: { size: 12 },
+                                padding: 10,
+                                boxWidth: 15
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            ticks: { 
+                                color: '#e0e0e0',
+                                font: { size: 11 },
+                                padding: 5
+                            },
+                            grid: { color: 'rgba(255, 255, 255, 0.1)' }
+                        },
+                        x: {
+                            ticks: { 
+                                color: '#e0e0e0',
+                                font: { size: 11 },
+                                padding: 5
+                            },
+                            grid: { color: 'rgba(255, 255, 255, 0.1)' }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Update header info based on current view
+        function updateHeaderInfo() {
+            let data = null;
+            let plantName = '';
+
+            if (currentView === 1 || currentView === 2) {
+                data = plant2Data;
+                plantName = 'PLANT 2';
+            } else {
+                data = plant3Data;
+                plantName = 'PLANT 3';
+            }
+
+            document.getElementById('plantName').textContent = plantName;
+
+            if (data && !data.error) {
+                document.getElementById('lastUpdateTime').textContent = data.check_date;
+                document.getElementById('productName').textContent = data.product_name;
+                
+                const statusBadge = document.getElementById('statusBadge');
+                statusBadge.textContent = data.status;
+                statusBadge.className = 'status-badge ' + (data.status === 'PASS' ? 'status-pass' : 'status-fail');
+                statusBadge.style.display = 'inline-block';
+            }
+        }
+
+        // Toggle between views
+        function toggleView() {
+            const views = ['view1', 'view2', 'view3', 'view4'];
+            const currentViewEl = document.getElementById(views[currentView - 1]);
+            
+            // Move to next view
+            currentView = (currentView % 4) + 1;
+            const nextViewEl = document.getElementById(views[currentView - 1]);
+
+            // Animate transition
+            currentViewEl.classList.add('exit');
+            currentViewEl.classList.remove('active');
+            
+            setTimeout(() => {
+                nextViewEl.classList.add('active');
+                nextViewEl.classList.remove('exit');
+                updateHeaderInfo();
+            }, 300);
+        }
+
+        // Initialize
+        updateDateTime();
+        loadAllData();
+        updateHeaderInfo();
+
+        // Auto-refresh
+        setInterval(updateDateTime, 1000); // Update time every second
+        setInterval(loadAllData, 5000); // Refresh data every 5 seconds
+        setInterval(toggleView, 3000); // Toggle views every 3 seconds
+    </script>
+</body>
+</html>
