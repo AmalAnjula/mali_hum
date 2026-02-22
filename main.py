@@ -21,38 +21,38 @@ class User(db.Model):
     username = db.Column(db.String(80), unique=True, nullable=False)
     password = db.Column(db.String(200), nullable=False)
     role = db.Column(db.String(20), nullable=False)  # 'ADMIN' or 'USER'
-    created_at = db.Column(db.DateTime, default=datetime.now)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
 class Product(db.Model):
     id = db.Column(db.String(50), primary_key=True)  # User-defined ID
-    create_date = db.Column(db.DateTime, default=datetime.now)
+    create_date = db.Column(db.DateTime, default=datetime.utcnow)
     plant = db.Column(db.String(100), nullable=False)
     product = db.Column(db.String(100), nullable=False)
-    moisture_min = db.Column(db.Float, nullable=False)
-    moisture_max = db.Column(db.Float, nullable=False)
-    weight_min = db.Column(db.Float, nullable=False)
-    weight_max = db.Column(db.Float, nullable=False)
-    thickness_min = db.Column(db.Float, nullable=False)
-    thickness_max = db.Column(db.Float, nullable=False)
-    breadth_min = db.Column(db.Float, nullable=False)
-    breadth_max = db.Column(db.Float, nullable=False)
-    length_min = db.Column(db.Float, nullable=False)
-    length_max = db.Column(db.Float, nullable=False)
-    diameter_min = db.Column(db.Float, nullable=False)
-    diameter_max = db.Column(db.Float, nullable=False)
+    moisture_min = db.Column(db.String(20), nullable=False)  # Can be number or "-"
+    moisture_max = db.Column(db.String(20), nullable=False)
+    weight_min = db.Column(db.String(20), nullable=False)
+    weight_max = db.Column(db.String(20), nullable=False)
+    thickness_min = db.Column(db.String(20), nullable=False)
+    thickness_max = db.Column(db.String(20), nullable=False)
+    breadth_min = db.Column(db.String(20), nullable=False)
+    breadth_max = db.Column(db.String(20), nullable=False)
+    length_min = db.Column(db.String(20), nullable=False)
+    length_max = db.Column(db.String(20), nullable=False)
+    diameter_min = db.Column(db.String(20), nullable=False)
+    diameter_max = db.Column(db.String(20), nullable=False)
     username = db.Column(db.String(80), nullable=False)
     quality_checks = db.relationship('QualityCheck', backref='product', lazy=True)
 
 class QualityCheck(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     product_id = db.Column(db.String(50), db.ForeignKey('product.id'), nullable=False)
-    check_date = db.Column(db.DateTime, default=datetime.now)
-    moisture = db.Column(db.Float, nullable=False)
-    weight = db.Column(db.Float, nullable=False)
-    thickness = db.Column(db.Float, nullable=False)
-    breadth = db.Column(db.Float, nullable=False)
-    length = db.Column(db.Float, nullable=False)
-    diameter = db.Column(db.Float, nullable=False)
+    check_date = db.Column(db.DateTime, default=datetime.utcnow)
+    moisture = db.Column(db.String(20), nullable=False)  # Can be number or "-"
+    weight = db.Column(db.String(20), nullable=False)
+    thickness = db.Column(db.String(20), nullable=False)
+    breadth = db.Column(db.String(20), nullable=False)
+    length = db.Column(db.String(20), nullable=False)
+    diameter = db.Column(db.String(20), nullable=False)
     status = db.Column(db.String(20), nullable=False)  # 'PASS' or 'FAIL'
     notes = db.Column(db.String(500))
     username = db.Column(db.String(80), nullable=False)
@@ -84,6 +84,15 @@ def save_quality_check_json(quality_check, product):
         plant_name = product.plant.replace(' ', '_').lower()
         filename = f'json_data/{plant_name}_quality_checks.json'
         
+        # Helper to convert value
+        def convert_value(val):
+            if val == '-':
+                return '-'
+            try:
+                return float(val)
+            except:
+                return '-'
+        
         # Prepare the data
         check_data = {
             'check_id': quality_check.id,
@@ -95,20 +104,20 @@ def save_quality_check_json(quality_check, product):
                 'product_name': product.product
             },
             'specifications': {
-                'moisture': {'min': product.moisture_min, 'max': product.moisture_max},
-                'weight': {'min': product.weight_min, 'max': product.weight_max},
-                'thickness': {'min': product.thickness_min, 'max': product.thickness_max},
-                'breadth': {'min': product.breadth_min, 'max': product.breadth_max},
-                'length': {'min': product.length_min, 'max': product.length_max},
-                'diameter': {'min': product.diameter_min, 'max': product.diameter_max}
+                'moisture': {'min': convert_value(product.moisture_min), 'max': convert_value(product.moisture_max)},
+                'weight': {'min': convert_value(product.weight_min), 'max': convert_value(product.weight_max)},
+                'thickness': {'min': convert_value(product.thickness_min), 'max': convert_value(product.thickness_max)},
+                'breadth': {'min': convert_value(product.breadth_min), 'max': convert_value(product.breadth_max)},
+                'length': {'min': convert_value(product.length_min), 'max': convert_value(product.length_max)},
+                'diameter': {'min': convert_value(product.diameter_min), 'max': convert_value(product.diameter_max)}
             },
             'measurements': {
-                'moisture': quality_check.moisture,
-                'weight': quality_check.weight,
-                'thickness': quality_check.thickness,
-                'breadth': quality_check.breadth,
-                'length': quality_check.length,
-                'diameter': quality_check.diameter
+                'moisture': convert_value(quality_check.moisture),
+                'weight': convert_value(quality_check.weight),
+                'thickness': convert_value(quality_check.thickness),
+                'breadth': convert_value(quality_check.breadth),
+                'length': convert_value(quality_check.length),
+                'diameter': convert_value(quality_check.diameter)
             },
             'status': quality_check.status,
             'notes': quality_check.notes
@@ -312,7 +321,6 @@ def products():
 def create_product():
     if request.method == 'POST':
         try:
-            # Get and validate product ID
             product_id = request.form.get('id')
             if not product_id:
                 flash('Product ID cannot be empty', 'danger')
@@ -330,30 +338,42 @@ def create_product():
                 flash(f'Product ID "{product_id}" already exists! Please use a different ID.', 'danger')
                 return render_template('create_product.html')
             
+            # Validate all numeric fields (can be number or "-")
+            def validate_field(value, field_name):
+                value = value.strip()
+                if not value:
+                    raise ValueError(f'{field_name} cannot be empty')
+                if value != '-':
+                    try:
+                        float(value)
+                    except ValueError:
+                        raise ValueError(f'{field_name} must be a number or "-"')
+                return value
+            
             new_product = Product(
                 id=product_id,
                 plant=request.form.get('plant'),
                 product=request.form.get('product'),
-                moisture_min=float(request.form.get('moisture_min')),
-                moisture_max=float(request.form.get('moisture_max')),
-                weight_min=float(request.form.get('weight_min')),
-                weight_max=float(request.form.get('weight_max')),
-                thickness_min=float(request.form.get('thickness_min')),
-                thickness_max=float(request.form.get('thickness_max')),
-                breadth_min=float(request.form.get('breadth_min')),
-                breadth_max=float(request.form.get('breadth_max')),
-                length_min=float(request.form.get('length_min')),
-                length_max=float(request.form.get('length_max')),
-                diameter_min=float(request.form.get('diameter_min')),
-                diameter_max=float(request.form.get('diameter_max')),
+                moisture_min=validate_field(request.form.get('moisture_min'), 'Moisture Min'),
+                moisture_max=validate_field(request.form.get('moisture_max'), 'Moisture Max'),
+                weight_min=validate_field(request.form.get('weight_min'), 'Weight Min'),
+                weight_max=validate_field(request.form.get('weight_max'), 'Weight Max'),
+                thickness_min=validate_field(request.form.get('thickness_min'), 'Thickness Min'),
+                thickness_max=validate_field(request.form.get('thickness_max'), 'Thickness Max'),
+                breadth_min=validate_field(request.form.get('breadth_min'), 'Breadth Min'),
+                breadth_max=validate_field(request.form.get('breadth_max'), 'Breadth Max'),
+                length_min=validate_field(request.form.get('length_min'), 'Length Min'),
+                length_max=validate_field(request.form.get('length_max'), 'Length Max'),
+                diameter_min=validate_field(request.form.get('diameter_min'), 'Diameter Min'),
+                diameter_max=validate_field(request.form.get('diameter_max'), 'Diameter Max'),
                 username=session['username']
             )
             db.session.add(new_product)
             db.session.commit()
             flash(f'Product "{product_id}" created successfully', 'success')
             return redirect(url_for('products'))
-        except ValueError:
-            flash('All numeric fields must be valid numbers', 'danger')
+        except ValueError as e:
+            flash(str(e), 'danger')
         except Exception as e:
             flash(f'Error creating product: {str(e)}', 'danger')
     
@@ -366,26 +386,38 @@ def edit_product(product_id):
     
     if request.method == 'POST':
         try:
+            # Validate all numeric fields (can be number or "-")
+            def validate_field(value, field_name):
+                value = value.strip()
+                if not value:
+                    raise ValueError(f'{field_name} cannot be empty')
+                if value != '-':
+                    try:
+                        float(value)
+                    except ValueError:
+                        raise ValueError(f'{field_name} must be a number or "-"')
+                return value
+            
             product.plant = request.form.get('plant')
             product.product = request.form.get('product')
-            product.moisture_min = float(request.form.get('moisture_min'))
-            product.moisture_max = float(request.form.get('moisture_max'))
-            product.weight_min = float(request.form.get('weight_min'))
-            product.weight_max = float(request.form.get('weight_max'))
-            product.thickness_min = float(request.form.get('thickness_min'))
-            product.thickness_max = float(request.form.get('thickness_max'))
-            product.breadth_min = float(request.form.get('breadth_min'))
-            product.breadth_max = float(request.form.get('breadth_max'))
-            product.length_min = float(request.form.get('length_min'))
-            product.length_max = float(request.form.get('length_max'))
-            product.diameter_min = float(request.form.get('diameter_min'))
-            product.diameter_max = float(request.form.get('diameter_max'))
+            product.moisture_min = validate_field(request.form.get('moisture_min'), 'Moisture Min')
+            product.moisture_max = validate_field(request.form.get('moisture_max'), 'Moisture Max')
+            product.weight_min = validate_field(request.form.get('weight_min'), 'Weight Min')
+            product.weight_max = validate_field(request.form.get('weight_max'), 'Weight Max')
+            product.thickness_min = validate_field(request.form.get('thickness_min'), 'Thickness Min')
+            product.thickness_max = validate_field(request.form.get('thickness_max'), 'Thickness Max')
+            product.breadth_min = validate_field(request.form.get('breadth_min'), 'Breadth Min')
+            product.breadth_max = validate_field(request.form.get('breadth_max'), 'Breadth Max')
+            product.length_min = validate_field(request.form.get('length_min'), 'Length Min')
+            product.length_max = validate_field(request.form.get('length_max'), 'Length Max')
+            product.diameter_min = validate_field(request.form.get('diameter_min'), 'Diameter Min')
+            product.diameter_max = validate_field(request.form.get('diameter_max'), 'Diameter Max')
             
             db.session.commit()
             flash('Product updated successfully', 'success')
             return redirect(url_for('products'))
-        except ValueError:
-            flash('All numeric fields must be valid numbers', 'danger')
+        except ValueError as e:
+            flash(str(e), 'danger')
     
     return render_template('edit_product.html', product=product)
 
@@ -444,34 +476,58 @@ def quality_check():
     if request.method == 'POST':
         try:
             product_id = request.form.get('product_id')
+            product = Product.query.get(product_id)
+            
+            if not product:
+                flash('Product not found', 'danger')
+                return redirect(url_for('quality_check'))
+            
+            # Helper function to get measurement value or "-"
+            def get_measurement(field_name):
+                value = request.form.get(field_name, '').strip()
+                if value == '-' or value == '':
+                    return '-'
+                try:
+                    return float(value)
+                except ValueError:
+                    return '-'
             
             measurement = QualityCheck(
                 product_id=product_id,
-                moisture=float(request.form.get('moisture')),
-                weight=float(request.form.get('weight')),
-                thickness=float(request.form.get('thickness')),
-                breadth=float(request.form.get('breadth')),
-                length=float(request.form.get('length')),
-                diameter=float(request.form.get('diameter')),
+                moisture=get_measurement('moisture'),
+                weight=get_measurement('weight'),
+                thickness=get_measurement('thickness'),
+                breadth=get_measurement('breadth'),
+                length=get_measurement('length'),
+                diameter=get_measurement('diameter'),
                 username=session['username']
             )
             
-            # Get product specs for validation
-            product = Product.query.get(product_id)
-            
-            # Check if measurements are within specs
+            # Check if measurements are within specs (skip "-" values)
             issues = []
-            if not (product.moisture_min <= measurement.moisture <= product.moisture_max):
+            
+            def check_spec(param_name, measurement_val, min_val, max_val):
+                if measurement_val == '-' or min_val == '-' or max_val == '-':
+                    return True  # Skip validation
+                try:
+                    m = float(measurement_val)
+                    min_v = float(min_val)
+                    max_v = float(max_val)
+                    return min_v <= m <= max_v
+                except:
+                    return True  # Skip if conversion fails
+            
+            if not check_spec('Moisture', measurement.moisture, product.moisture_min, product.moisture_max):
                 issues.append('Moisture')
-            if not (product.weight_min <= measurement.weight <= product.weight_max):
+            if not check_spec('Weight', measurement.weight, product.weight_min, product.weight_max):
                 issues.append('Weight')
-            if not (product.thickness_min <= measurement.thickness <= product.thickness_max):
+            if not check_spec('Thickness', measurement.thickness, product.thickness_min, product.thickness_max):
                 issues.append('Thickness')
-            if not (product.breadth_min <= measurement.breadth <= product.breadth_max):
+            if not check_spec('Breadth', measurement.breadth, product.breadth_min, product.breadth_max):
                 issues.append('Breadth')
-            if not (product.length_min <= measurement.length <= product.length_max):
+            if not check_spec('Length', measurement.length, product.length_min, product.length_max):
                 issues.append('Length')
-            if not (product.diameter_min <= measurement.diameter <= product.diameter_max):
+            if not check_spec('Diameter', measurement.diameter, product.diameter_min, product.diameter_max):
                 issues.append('Diameter')
             
             measurement.status = 'FAIL' if issues else 'PASS'
@@ -489,8 +545,10 @@ def quality_check():
                 flash('Quality Check PASSED - All measurements within spec', 'success')
                 
             return redirect(url_for('quality_history'))
-        except ValueError:
-            flash('All fields must be valid numbers', 'danger')
+        except ValueError as e:
+            flash(f'Error: {str(e)}', 'danger')
+        except Exception as e:
+            flash(f'Error submitting quality check: {str(e)}', 'danger')
     
     products = Product.query.all()
     return render_template('quality_check.html', products=products)
@@ -499,21 +557,30 @@ def quality_check():
 @login_required
 def get_product_specs(product_id):
     product = Product.query.get_or_404(product_id)
+    
+    def convert_value(val):
+        if val == '-':
+            return '-'
+        try:
+            return float(val)
+        except:
+            return '-'
+    
     return {
         'plant': product.plant,
         'product': product.product,
-        'moisture_min': product.moisture_min,
-        'moisture_max': product.moisture_max,
-        'weight_min': product.weight_min,
-        'weight_max': product.weight_max,
-        'thickness_min': product.thickness_min,
-        'thickness_max': product.thickness_max,
-        'breadth_min': product.breadth_min,
-        'breadth_max': product.breadth_max,
-        'length_min': product.length_min,
-        'length_max': product.length_max,
-        'diameter_min': product.diameter_min,
-        'diameter_max': product.diameter_max
+        'moisture_min': convert_value(product.moisture_min),
+        'moisture_max': convert_value(product.moisture_max),
+        'weight_min': convert_value(product.weight_min),
+        'weight_max': convert_value(product.weight_max),
+        'thickness_min': convert_value(product.thickness_min),
+        'thickness_max': convert_value(product.thickness_max),
+        'breadth_min': convert_value(product.breadth_min),
+        'breadth_max': convert_value(product.breadth_max),
+        'length_min': convert_value(product.length_min),
+        'length_max': convert_value(product.length_max),
+        'diameter_min': convert_value(product.diameter_min),
+        'diameter_max': convert_value(product.diameter_max)
     }
 
 @app.route('/quality-history')
@@ -577,13 +644,13 @@ def export_quality_csv():
     )
 
 @app.route('/display-dashboard2')
+def display_dashboard():
+    plants = ['Plant 1', 'Plant 2','Plant 3', 'Plant 4']
+    return render_template('display_dashboard2.html' )
+
+@app.route('/display-dashboard2')
 def display_dashboard2():
     return render_template('display_dashboard2.html')
-
-@app.route('/display-dashboard')
-def display_dashboard():
-    plants = ['Plant 1', 'Plant 2', 'Plant 3', 'Plant 4']
-    return render_template('display_dashboard.html', plants=plants)
 
 @app.route('/get-latest-check/<plant>')
 def get_latest_check(plant):
@@ -606,6 +673,14 @@ def get_latest_check(plant):
         
         latest_check = data[-1]  # Last item is the latest
         
+        def get_spec_value(spec_dict, key):
+            val = spec_dict.get(key, '-')
+            return val if val != '-' else '-'
+        
+        def get_measurement_value(meas_dict, key):
+            val = meas_dict.get(key, '-')
+            return val if val != '-' else '-'
+        
         return {
             'check_date': latest_check['check_date'],
             'product_name': latest_check['product']['product_name'],
@@ -613,34 +688,34 @@ def get_latest_check(plant):
             'status': latest_check['status'],
             'data': {
                 'moisture': {
-                    'value': latest_check['measurements']['moisture'],
-                    'min': latest_check['specifications']['moisture']['min'],
-                    'max': latest_check['specifications']['moisture']['max']
+                    'value': get_measurement_value(latest_check['measurements'], 'moisture'),
+                    'min': get_spec_value(latest_check['specifications']['moisture'], 'min'),
+                    'max': get_spec_value(latest_check['specifications']['moisture'], 'max')
                 },
                 'weight': {
-                    'value': latest_check['measurements']['weight'],
-                    'min': latest_check['specifications']['weight']['min'],
-                    'max': latest_check['specifications']['weight']['max']
+                    'value': get_measurement_value(latest_check['measurements'], 'weight'),
+                    'min': get_spec_value(latest_check['specifications']['weight'], 'min'),
+                    'max': get_spec_value(latest_check['specifications']['weight'], 'max')
                 },
                 'thickness': {
-                    'value': latest_check['measurements']['thickness'],
-                    'min': latest_check['specifications']['thickness']['min'],
-                    'max': latest_check['specifications']['thickness']['max']
+                    'value': get_measurement_value(latest_check['measurements'], 'thickness'),
+                    'min': get_spec_value(latest_check['specifications']['thickness'], 'min'),
+                    'max': get_spec_value(latest_check['specifications']['thickness'], 'max')
                 },
                 'breadth': {
-                    'value': latest_check['measurements']['breadth'],
-                    'min': latest_check['specifications']['breadth']['min'],
-                    'max': latest_check['specifications']['breadth']['max']
+                    'value': get_measurement_value(latest_check['measurements'], 'breadth'),
+                    'min': get_spec_value(latest_check['specifications']['breadth'], 'min'),
+                    'max': get_spec_value(latest_check['specifications']['breadth'], 'max')
                 },
                 'length': {
-                    'value': latest_check['measurements']['length'],
-                    'min': latest_check['specifications']['length']['min'],
-                    'max': latest_check['specifications']['length']['max']
+                    'value': get_measurement_value(latest_check['measurements'], 'length'),
+                    'min': get_spec_value(latest_check['specifications']['length'], 'min'),
+                    'max': get_spec_value(latest_check['specifications']['length'], 'max')
                 },
                 'diameter': {
-                    'value': latest_check['measurements']['diameter'],
-                    'min': latest_check['specifications']['diameter']['min'],
-                    'max': latest_check['specifications']['diameter']['max']
+                    'value': get_measurement_value(latest_check['measurements'], 'diameter'),
+                    'min': get_spec_value(latest_check['specifications']['diameter'], 'min'),
+                    'max': get_spec_value(latest_check['specifications']['diameter'], 'max')
                 }
             }
         }

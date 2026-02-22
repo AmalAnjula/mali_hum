@@ -1,462 +1,48 @@
 [
     {
         "check_id": 1,
-        "check_date": "2025-12-21 17:18:18",
+        "check_date": "2026-02-08 05:39:07",
         "inspector": "admin",
         "product": {
-            "id": "123",
+            "id": "MA001",
             "plant": "Plant 1",
             "product_name": "Maree"
         },
         "specifications": {
             "moisture": {
-                "min": 1.0,
-                "max": 3.0
+                "min": 2.0,
+                "max": 9.0
             },
             "weight": {
-                "min": 1.0,
-                "max": 3.0
+                "min": 2.0,
+                "max": 8.0
             },
             "thickness": {
-                "min": 1.0,
-                "max": 3.0
+                "min": 3.0,
+                "max": 9.0
             },
             "breadth": {
-                "min": 1.0,
-                "max": 3.0
+                "min": 2.0,
+                "max": 8.0
             },
             "length": {
-                "min": 1.0,
-                "max": 3.0
+                "min": 4.0,
+                "max": 8.9
             },
             "diameter": {
-                "min": 1.0,
-                "max": 3.0
-            }
-        },
-        "measurements": {
-            "moisture": 2.0,
-            "weight": 2.0,
-            "thickness": 2.0,
-            "breadth": 2.0,
-            "length": 2.0,
-            "diameter": 2.0
-        },
-        "status": "PASS",
-        "notes": "All measurements within spec"
-    },
-    {
-        "check_id": 3,
-        "check_date": "2025-12-22 00:06:18",
-        "inspector": "admin",
-        "product": {
-            "id": "123",
-            "plant": "Plant 1",
-            "product_name": "Maree"
-        },
-        "specifications": {
-            "moisture": {
-                "min": 1.0,
-                "max": 3.0
-            },
-            "weight": {
-                "min": 1.0,
-                "max": 3.0
-            },
-            "thickness": {
-                "min": 1.0,
-                "max": 3.0
-            },
-            "breadth": {
-                "min": 1.0,
-                "max": 3.0
-            },
-            "length": {
-                "min": 1.0,
-                "max": 3.0
-            },
-            "diameter": {
-                "min": 1.0,
-                "max": 3.0
-            }
-        },
-        "measurements": {
-            "moisture": 4.0,
-            "weight": 2.0,
-            "thickness": 5.0,
-            "breadth": 2.0,
-            "length": 2.0,
-            "diameter": 2.0
-        },
-        "status": "FAIL",
-        "notes": "Out of spec: Moisture, Thickness"
-    },
-    {
-        "check_id": 4,
-        "check_date": "2025-12-22 00:06:35",
-        "inspector": "admin",
-        "product": {
-            "id": "123",
-            "plant": "Plant 1",
-            "product_name": "Maree"
-        },
-        "specifications": {
-            "moisture": {
-                "min": 1.0,
-                "max": 3.0
-            },
-            "weight": {
-                "min": 1.0,
-                "max": 3.0
-            },
-            "thickness": {
-                "min": 1.0,
-                "max": 3.0
-            },
-            "breadth": {
-                "min": 1.0,
-                "max": 3.0
-            },
-            "length": {
-                "min": 1.0,
-                "max": 3.0
-            },
-            "diameter": {
-                "min": 1.0,
-                "max": 3.0
+                "min": 3.0,
+                "max": 9.0
             }
         },
         "measurements": {
             "moisture": 1.0,
-            "weight": 1.0,
-            "thickness": 1.0,
-            "breadth": 1.0,
-            "length": 1.0,
-            "diameter": 1.0
-        },
-        "status": "PASS",
-        "notes": "All measurements within spec"
-    },
-    {
-        "check_id": 5,
-        "check_date": "2025-12-22 00:07:00",
-        "inspector": "admin",
-        "product": {
-            "id": "123",
-            "plant": "Plant 1",
-            "product_name": "Maree"
-        },
-        "specifications": {
-            "moisture": {
-                "min": 1.0,
-                "max": 3.0
-            },
-            "weight": {
-                "min": 1.0,
-                "max": 3.0
-            },
-            "thickness": {
-                "min": 1.0,
-                "max": 3.0
-            },
-            "breadth": {
-                "min": 1.0,
-                "max": 3.0
-            },
-            "length": {
-                "min": 1.0,
-                "max": 3.0
-            },
-            "diameter": {
-                "min": 1.0,
-                "max": 3.0
-            }
-        },
-        "measurements": {
-            "moisture": 3.0,
-            "weight": 3.0,
-            "thickness": 5.0,
-            "breadth": 6.0,
-            "length": 5.0,
-            "diameter": 7.0
-        },
-        "status": "FAIL",
-        "notes": "Out of spec: Thickness, Breadth, Length, Diameter"
-    },
-    {
-        "check_id": 6,
-        "check_date": "2025-12-22 00:07:11",
-        "inspector": "admin",
-        "product": {
-            "id": "123",
-            "plant": "Plant 1",
-            "product_name": "Maree"
-        },
-        "specifications": {
-            "moisture": {
-                "min": 1.0,
-                "max": 3.0
-            },
-            "weight": {
-                "min": 1.0,
-                "max": 3.0
-            },
-            "thickness": {
-                "min": 1.0,
-                "max": 3.0
-            },
-            "breadth": {
-                "min": 1.0,
-                "max": 3.0
-            },
-            "length": {
-                "min": 1.0,
-                "max": 3.0
-            },
-            "diameter": {
-                "min": 1.0,
-                "max": 3.0
-            }
-        },
-        "measurements": {
-            "moisture": 5.0,
-            "weight": 5.0,
-            "thickness": 5.0,
-            "breadth": 5.0,
-            "length": 55.0,
-            "diameter": 5.0
-        },
-        "status": "FAIL",
-        "notes": "Out of spec: Moisture, Weight, Thickness, Breadth, Length, Diameter"
-    },
-    {
-        "check_id": 7,
-        "check_date": "2025-12-22 00:07:39",
-        "inspector": "admin",
-        "product": {
-            "id": "123",
-            "plant": "Plant 1",
-            "product_name": "Maree"
-        },
-        "specifications": {
-            "moisture": {
-                "min": 1.0,
-                "max": 3.0
-            },
-            "weight": {
-                "min": 1.0,
-                "max": 3.0
-            },
-            "thickness": {
-                "min": 1.0,
-                "max": 3.0
-            },
-            "breadth": {
-                "min": 1.0,
-                "max": 3.0
-            },
-            "length": {
-                "min": 1.0,
-                "max": 3.0
-            },
-            "diameter": {
-                "min": 1.0,
-                "max": 3.0
-            }
-        },
-        "measurements": {
-            "moisture": 1.0,
-            "weight": 1.0,
-            "thickness": 1.0,
-            "breadth": 1.0,
-            "length": 11.0,
-            "diameter": 1.0
-        },
-        "status": "FAIL",
-        "notes": "Out of spec: Length"
-    },
-    {
-        "check_id": 8,
-        "check_date": "2025-12-22 00:16:53",
-        "inspector": "admin",
-        "product": {
-            "id": "1122",
-            "plant": "Plant 1",
-            "product_name": "crisco"
-        },
-        "specifications": {
-            "moisture": {
-                "min": 4.0,
-                "max": 9.0
-            },
-            "weight": {
-                "min": 4.0,
-                "max": 9.0
-            },
-            "thickness": {
-                "min": 4.0,
-                "max": 9.0
-            },
-            "breadth": {
-                "min": 4.0,
-                "max": 9.0
-            },
-            "length": {
-                "min": 4.0,
-                "max": 9.0
-            },
-            "diameter": {
-                "min": 4.0,
-                "max": 9.0
-            }
-        },
-        "measurements": {
-            "moisture": 9.0,
-            "weight": 9.0,
-            "thickness": 9.0,
-            "breadth": 9.0,
-            "length": 9.0,
-            "diameter": 9.0
-        },
-        "status": "PASS",
-        "notes": "All measurements within spec"
-    },
-    {
-        "check_id": 9,
-        "check_date": "2025-12-22 00:21:34",
-        "inspector": "admin",
-        "product": {
-            "id": "123",
-            "plant": "Plant 1",
-            "product_name": "Maree"
-        },
-        "specifications": {
-            "moisture": {
-                "min": 1.0,
-                "max": 3.0
-            },
-            "weight": {
-                "min": 1.0,
-                "max": 3.0
-            },
-            "thickness": {
-                "min": 1.0,
-                "max": 3.0
-            },
-            "breadth": {
-                "min": 1.0,
-                "max": 3.0
-            },
-            "length": {
-                "min": 1.0,
-                "max": 3.0
-            },
-            "diameter": {
-                "min": 1.0,
-                "max": 3.0
-            }
-        },
-        "measurements": {
-            "moisture": 2.0,
             "weight": 2.0,
-            "thickness": 2.0,
-            "breadth": 2.0,
-            "length": 2.0,
-            "diameter": 2.0
-        },
-        "status": "PASS",
-        "notes": "All measurements within spec"
-    },
-    {
-        "check_id": 10,
-        "check_date": "2025-12-22 00:26:14",
-        "inspector": "admin",
-        "product": {
-            "id": "123",
-            "plant": "Plant 1",
-            "product_name": "Maree"
-        },
-        "specifications": {
-            "moisture": {
-                "min": 1.0,
-                "max": 3.0
-            },
-            "weight": {
-                "min": 1.0,
-                "max": 3.0
-            },
-            "thickness": {
-                "min": 1.0,
-                "max": 3.0
-            },
-            "breadth": {
-                "min": 1.0,
-                "max": 3.0
-            },
-            "length": {
-                "min": 1.0,
-                "max": 3.0
-            },
-            "diameter": {
-                "min": 1.0,
-                "max": 3.0
-            }
-        },
-        "measurements": {
-            "moisture": 3.0,
-            "weight": 3.0,
             "thickness": 3.0,
-            "breadth": 3.0,
-            "length": 3.0,
-            "diameter": 3.0
-        },
-        "status": "PASS",
-        "notes": "All measurements within spec"
-    },
-    {
-        "check_id": 11,
-        "check_date": "2025-12-22 06:13:36",
-        "inspector": "admin",
-        "product": {
-            "id": "123",
-            "plant": "Plant 1",
-            "product_name": "Maree"
-        },
-        "specifications": {
-            "moisture": {
-                "min": 1.0,
-                "max": 3.0
-            },
-            "weight": {
-                "min": 1.0,
-                "max": 3.0
-            },
-            "thickness": {
-                "min": 1.0,
-                "max": 3.0
-            },
-            "breadth": {
-                "min": 1.0,
-                "max": 3.0
-            },
-            "length": {
-                "min": 1.0,
-                "max": 3.0
-            },
-            "diameter": {
-                "min": 1.0,
-                "max": 3.0
-            }
-        },
-        "measurements": {
-            "moisture": 6.0,
-            "weight": 6.0,
-            "thickness": 6.0,
-            "breadth": 6.0,
-            "length": 6.0,
+            "breadth": 4.0,
+            "length": 5.0,
             "diameter": 6.0
         },
         "status": "FAIL",
-        "notes": "Out of spec: Moisture, Weight, Thickness, Breadth, Length, Diameter"
+        "notes": "Out of spec: Moisture"
     }
 ]

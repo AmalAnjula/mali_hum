@@ -204,12 +204,29 @@ function loadProductSpecs(productId) {
         .then(response => response.json())
         .then(data => {
             productSpecs = data;
-            document.getElementById('moisture-range').innerHTML = `<strong>Range:</strong> ${data.moisture_min} - ${data.moisture_max}`;
-            document.getElementById('weight-range').innerHTML = `<strong>Range:</strong> ${data.weight_min} - ${data.weight_max}`;
-            document.getElementById('thickness-range').innerHTML = `<strong>Range:</strong> ${data.thickness_min} - ${data.thickness_max}`;
-            document.getElementById('breadth-range').innerHTML = `<strong>Range:</strong> ${data.breadth_min} - ${data.breadth_max}`;
-            document.getElementById('length-range').innerHTML = `<strong>Range:</strong> ${data.length_min} - ${data.length_max}`;
-            document.getElementById('diameter-range').innerHTML = `<strong>Range:</strong> ${data.diameter_min} - ${data.diameter_max}`;
+            
+            // Update each parameter
+            const params = ['moisture', 'weight', 'thickness', 'breadth', 'length', 'diameter'];
+            params.forEach(param => {
+                const min = data[`${param}_min`];
+                const max = data[`${param}_max`];
+                const inputField = document.getElementById(param);
+                const rangeDisplay = document.getElementById(`${param}-range`);
+                
+                if (min === '-' || max === '-') {
+                    // Disable input and show N/A
+                    inputField.disabled = true;
+                    inputField.value = '-';
+                    inputField.required = false;
+                    rangeDisplay.innerHTML = '<strong>N/A</strong> (Not applicable for this product)';
+                } else {
+                    // Enable input and show range
+                    inputField.disabled = false;
+                    inputField.value = '';
+                    inputField.required = true;
+                    rangeDisplay.innerHTML = `<strong>Range:</strong> ${typeof min === 'number' ? min.toFixed(2) : min} - ${typeof max === 'number' ? max.toFixed(2) : max}`;
+                }
+            });
         });
 }
 

@@ -1,92 +1,46 @@
 [
     {
         "check_id": 2,
-        "check_date": "2025-12-21 17:37:25",
+        "check_date": "2026-02-08 05:40:48",
         "inspector": "admin",
         "product": {
-            "id": "1234",
+            "id": "CR002",
             "plant": "Plant 2",
-            "product_name": "Craker"
+            "product_name": "Crisco"
         },
         "specifications": {
             "moisture": {
-                "min": 1.0,
+                "min": 2.0,
                 "max": 9.0
             },
             "weight": {
-                "min": 1.0,
+                "min": 2.0,
                 "max": 9.0
             },
             "thickness": {
-                "min": 1.0,
-                "max": 9.0
+                "min": 0.0,
+                "max": 2.0
             },
             "breadth": {
-                "min": 1.0,
-                "max": 9.0
+                "min": "-",
+                "max": "-"
             },
             "length": {
-                "min": 1.0,
-                "max": 9.0
+                "min": 9.0,
+                "max": 100.0
             },
             "diameter": {
-                "min": 1.0,
-                "max": 9.0
+                "min": 3.0,
+                "max": 4.0
             }
         },
         "measurements": {
-            "moisture": 10.0,
-            "weight": 1.0,
-            "thickness": 55.0,
-            "breadth": 5.0,
-            "length": 1.0,
-            "diameter": 1.0
-        },
-        "status": "FAIL",
-        "notes": "Out of spec: Moisture, Thickness"
-    },
-    {
-        "check_id": 12,
-        "check_date": "2025-12-22 06:36:00",
-        "inspector": "admin",
-        "product": {
-            "id": "1234",
-            "plant": "Plant 2",
-            "product_name": "Craker"
-        },
-        "specifications": {
-            "moisture": {
-                "min": 1.0,
-                "max": 9.0
-            },
-            "weight": {
-                "min": 1.0,
-                "max": 9.0
-            },
-            "thickness": {
-                "min": 1.0,
-                "max": 9.0
-            },
-            "breadth": {
-                "min": 1.0,
-                "max": 9.0
-            },
-            "length": {
-                "min": 1.0,
-                "max": 9.0
-            },
-            "diameter": {
-                "min": 1.0,
-                "max": 9.0
-            }
-        },
-        "measurements": {
-            "moisture": 5.0,
-            "weight": 5.0,
-            "thickness": 5.0,
-            "breadth": 5.0,
-            "length": 5.0,
-            "diameter": 5.0
+            "moisture": 2.2,
+            "weight": 3.0,
+            "thickness": 1.0,
+            "breadth": "-",
+            "length": 33.0,
+            "diameter": 3.1
         },
         "status": "PASS",
         "notes": "All measurements within spec"

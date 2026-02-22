@@ -435,10 +435,10 @@
 
         // Load all data
         async function loadAllData() {
-            plant2Data = await loadPlantData('Plant 2');
-            plant3Data = await loadPlantData('Plant 3');
-            plant2MoistureHistory = await loadPlantMoistureHistory('Plant 2');
-            plant3MoistureHistory = await loadPlantMoistureHistory('Plant 3');
+            plant2Data = await loadPlantData('Plant 1');
+            plant3Data = await loadPlantData('Plant 2');
+            plant2MoistureHistory = await loadPlantMoistureHistory('Plant 1');
+            plant3MoistureHistory = await loadPlantMoistureHistory('Plant 2');
             
             renderAllViews();
         }
@@ -473,15 +473,21 @@
             let html = '';
             parameters.forEach(param => {
                 const paramData = data.data[param.key];
+                
+                // Skip if min or max is "-"
+                if (paramData.min === '-' || paramData.max === '-') {
+                    return;
+                }
+                
                 const isOutOfSpec = paramData.value < paramData.min || paramData.value > paramData.max;
                 
                 html += `
                     <div class="tile ${isOutOfSpec ? 'out-of-spec' : ''}">
                         <div class="tile-title">${param.title}</div>
-                        <div class="tile-value">${paramData.value.toFixed(2)}</div>
+                        <div class="tile-value">${typeof paramData.value === 'number' ? paramData.value.toFixed(2) : paramData.value}</div>
                         <div class="tile-range">
-                            Min: <span>${paramData.min.toFixed(2)}</span> | 
-                            Max: <span>${paramData.max.toFixed(2)}</span>
+                            Min: <span>${typeof paramData.min === 'number' ? paramData.min.toFixed(2) : paramData.min}</span> | 
+                            Max: <span>${typeof paramData.max === 'number' ? paramData.max.toFixed(2) : paramData.max}</span>
                         </div>
                     </div>
                 `;
@@ -497,7 +503,7 @@
             let html = '';
             
             // First 5 tiles: Moisture history
-            history.reverse().forEach((item, index) => {
+            history.forEach((item, index) => {
                 const statusClass = item.status === 'In Spec' ? 'status-in-spec' : 'status-out-spec';
                 const dateTime = item.check_date.split(' ');
                 const date = dateTime[0];
@@ -514,7 +520,10 @@
                         <div class="history-range">
                             Range: <span>${item.min.toFixed(2)} - ${item.max.toFixed(2)}</span>
                         </div>
-                          
+                        <div class="history-datetime">
+                            <span class="date-label">Logged:</span>
+                            <span class="date-value">${date} ${time}</span>
+                        </div>
                     </div>
                 `;
             });
@@ -634,10 +643,10 @@
 
             if (currentView === 1 || currentView === 2) {
                 data = plant2Data;
-                plantName = 'PLANT 2';
+                plantName = 'PLANT 1';
             } else {
                 data = plant3Data;
-                plantName = 'PLANT 3';
+                plantName = 'PLANT 2';
             }
 
             document.getElementById('plantName').textContent = plantName;
