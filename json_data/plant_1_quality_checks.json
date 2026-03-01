@@ -44,5 +44,51 @@
         },
         "status": "FAIL",
         "notes": "Out of spec: Moisture"
+    },
+    {
+        "check_id": 3,
+        "check_date": "2026-03-01 02:59:12",
+        "inspector": "admin",
+        "product": {
+            "id": "ds",
+            "plant": "Plant 1",
+            "product_name": "fsavr"
+        },
+        "specifications": {
+            "moisture": {
+                "min": "-",
+                "max": "-"
+            },
+            "weight": {
+                "min": 2.0,
+                "max": 9.0
+            },
+            "thickness": {
+                "min": 2.0,
+                "max": 9.0
+            },
+            "breadth": {
+                "min": 28.0,
+                "max": 88.0
+            },
+            "length": {
+                "min": 14.0,
+                "max": 99.0
+            },
+            "diameter": {
+                "min": 1.0,
+                "max": 8.0
+            }
+        },
+        "measurements": {
+            "moisture": "-",
+            "weight": 5.0,
+            "thickness": 2.0,
+            "breadth": 6.0,
+            "length": 44.0,
+            "diameter": 5.0
+        },
+        "status": "FAIL",
+        "notes": "Out of spec: Breadth"
     }
 ]
